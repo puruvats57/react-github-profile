@@ -71,23 +71,12 @@ export const ActivityFeed = () => {
 
               <div className="ml-7 space-y-2">
                 {mockCommits.map((commit, idx) => (
-                  <div key={idx} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2 flex-1">
-                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: commit.color }}/>
-                      <a href="#" className="text-primary hover:underline">
-                        {commit.repo}
-                      </a>
-                    </div>
+                  <div key={idx} className="flex items-center gap-2 text-sm">
+                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: commit.color }}/>
+                    <a href="#" className="text-primary hover:underline">
+                      {commit.repo}
+                    </a>
                     <span className="text-muted-foreground">{commit.count} commits</span>
-                    <div className="w-24 h-2 bg-muted rounded ml-4">
-                      <div 
-                        className="h-full rounded" 
-                        style={{ 
-                          width: `${(commit.count / 7) * 100}%`, 
-                          backgroundColor: commit.color 
-                        }}
-                      />
-                    </div>
                   </div>
                 ))}
               </div>

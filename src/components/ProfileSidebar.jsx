@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { MapPin, Link as LinkIcon, Mail, Users, Building2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-export const ProfileSidebar = ({ username = "puruvats57" }) => {
+export const ProfileSidebar = ({ username = "shreeramk" }) => {
     const [userData, setUserData] = useState(null);
     const [loading, setLoading] = useState(true);
     useEffect(() => {

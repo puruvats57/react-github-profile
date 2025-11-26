@@ -8,11 +8,13 @@ import { ChevronDown } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const Index = () => {
-    const username = "puruvats57";
+    const username = "shreeramk";
     const [activeTab, setActiveTab] = useState("overview");
     const [userData, setUserData] = useState(null);
+    const [starredCount, setStarredCount] = useState(0);
     
     useEffect(() => {
+        // Fetch user data (includes public_repos count)
         fetch(`https://api.github.com/users/${username}`)
             .then((res) => res.json())
             .then((data) => {
@@ -20,6 +22,37 @@ const Index = () => {
             })
             .catch((err) => {
                 console.error("Error fetching user data:", err);
+            });
+        
+        // Fetch starred repositories count
+        // GitHub API doesn't provide direct count, so we fetch first page and check Link header
+        fetch(`https://api.github.com/users/${username}/starred?per_page=1`)
+            .then((res) => {
+                const linkHeader = res.headers.get('Link');
+                if (linkHeader) {
+                    // Extract last page number from Link header
+                    const lastPageMatch = linkHeader.match(/page=(\d+)>; rel="last"/);
+                    if (lastPageMatch) {
+                        const lastPage = parseInt(lastPageMatch[1]);
+                        // Fetch the last page to get accurate count
+                        return fetch(`https://api.github.com/users/${username}/starred?per_page=100&page=${lastPage}`)
+                            .then(lastRes => lastRes.json())
+                            .then(lastPageData => {
+                                const totalCount = (lastPage - 1) * 100 + lastPageData.length;
+                                setStarredCount(totalCount);
+                            });
+                    }
+                }
+                // If no pagination, just count first page
+                return res.json().then(data => setStarredCount(data.length));
+            })
+            .catch((err) => {
+                console.error("Error fetching starred repos:", err);
+                // Fallback: fetch first 100 and show count (may be incomplete)
+                fetch(`https://api.github.com/users/${username}/starred?per_page=100`)
+                    .then(res => res.json())
+                    .then(starred => setStarredCount(starred.length))
+                    .catch(() => setStarredCount(0));
             });
     }, [username]);
     
@@ -82,7 +115,6 @@ const Index = () => {
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-muted border border-border"/>
                 )}
-                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-blue-500 rounded-full border-2 border-card"/>
               </div>
             </div>
           </div>
@@ -99,7 +131,9 @@ const Index = () => {
               </TabsTrigger>
               <TabsTrigger value="repositories" className="rounded-none border-b-2 border-transparent data-[state=active]:border-red-500 data-[state=active]:bg-transparent px-4 py-3 text-sm font-medium data-[state=active]:text-foreground text-muted-foreground">
                 Repositories
-                <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-muted rounded-full font-normal">42</span>
+                {userData?.public_repos !== undefined && (
+                  <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-muted rounded-full font-normal">{userData.public_repos}</span>
+                )}
               </TabsTrigger>
               <TabsTrigger value="projects" className="rounded-none border-b-2 border-transparent data-[state=active]:border-red-500 data-[state=active]:bg-transparent px-4 py-3 text-sm font-medium data-[state=active]:text-foreground text-muted-foreground">
                 Projects
@@ -109,7 +143,9 @@ const Index = () => {
               </TabsTrigger>
               <TabsTrigger value="stars" className="rounded-none border-b-2 border-transparent data-[state=active]:border-red-500 data-[state=active]:bg-transparent px-4 py-3 text-sm font-medium data-[state=active]:text-foreground text-muted-foreground">
                 Stars
-                <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-muted rounded-full font-normal">2</span>
+                {starredCount > 0 && (
+                  <span className="ml-1.5 px-1.5 py-0.5 text-xs bg-muted rounded-full font-normal">{starredCount}</span>
+                )}
               </TabsTrigger>
             </TabsList>
           </div>
