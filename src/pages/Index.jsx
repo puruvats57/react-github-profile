@@ -25,7 +25,7 @@ const Index = () => {
     
     return (<div className="min-h-screen bg-github-canvas">
       {/* Header */}
-      <header className="bg-card sticky top-0 z-50">
+      <header className="bg-card">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
