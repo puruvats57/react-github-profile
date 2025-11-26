@@ -38,35 +38,42 @@ const Index = () => {
               <span className="font-semibold text-sm text-foreground">{username}</span>
             </div>
 
-            <div className="flex items-center gap-2 flex-1 justify-end">
-              <nav className="flex items-center gap-1">
-                <Button variant="ghost" size="sm" className="h-8 px-1.5">
-                  <Users className="w-4 h-4"/>
-                  <ChevronDown className="w-3 h-3 ml-0.5"/>
-                </Button>
-                <Button variant="ghost" size="sm" className="h-8 px-1.5">
-                  <Plus className="w-4 h-4"/>
-                  <ChevronDown className="w-3 h-3 ml-0.5"/>
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
-                  <Bell className="w-4 h-4"/>
-                </Button>
-                <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
-                  <GitPullRequest className="w-4 h-4"/>
-                </Button>
-              </nav>
-
-              <div className="max-w-xl w-full ml-4 mr-2">
+            <div className="flex items-center gap-3 flex-1 justify-end">
+              {/* Search Bar */}
+              <div className="max-w-xl w-full">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
-                  <Input type="search" placeholder="Type / to search" className="pl-10 pr-12 bg-muted border-border w-full"/>
+                  <Input 
+                    type="search" 
+                    placeholder="Type / to search" 
+                    className="pl-10 pr-12 bg-muted/50 border-border rounded-md h-8 text-sm focus-visible:ring-1 focus-visible:ring-ring"
+                  />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                     <span className="text-xs bg-background border border-border rounded px-1.5 py-0.5 text-muted-foreground font-mono">/</span>
                   </div>
                 </div>
               </div>
 
-              <div className="relative cursor-pointer">
+              {/* Icons */}
+              <nav className="flex items-center gap-1">
+                <Button variant="ghost" size="sm" className="h-8 px-2 hover:bg-muted rounded-md">
+                  <Users className="w-4 h-4"/>
+                  <ChevronDown className="w-3 h-3 ml-0.5"/>
+                </Button>
+                <Button variant="ghost" size="sm" className="h-8 px-2 hover:bg-muted rounded-md">
+                  <Plus className="w-4 h-4"/>
+                  <ChevronDown className="w-3 h-3 ml-0.5"/>
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 p-0 hover:bg-muted rounded-md">
+                  <Bell className="w-4 h-4"/>
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8 p-0 hover:bg-muted rounded-md">
+                  <GitPullRequest className="w-4 h-4"/>
+                </Button>
+              </nav>
+
+              {/* Profile Picture */}
+              <div className="relative cursor-pointer ml-2">
                 {userData ? (
                   <Avatar className="w-8 h-8">
                     <AvatarImage src={userData.avatar_url} alt={userData.name}/>
