@@ -8,7 +8,7 @@ export const ProfileTabs = ({ username }) => {
       <TabsContent value="overview" className="space-y-6 mt-0">
         <PopularRepos />
         <ContributionGraph username={username}/>
-        <ActivityFeed />
+        <ActivityFeed username={username} />
       </TabsContent>
 
       <TabsContent value="repositories" className="mt-0">
