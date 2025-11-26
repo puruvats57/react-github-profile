@@ -1,35 +1,20 @@
-import { GitBranch, GitPullRequest, GitCommit } from "lucide-react";
-const mockActivity = [
-    {
-        type: "pullRequest",
-        repo: "typeintandem/tandem",
-        action: "Opened 66 commit in 11 repositories",
-        color: "#6e5494",
-    },
-    {
-        type: "commit",
-        repo: "typeintandem/tandem_website",
-        count: 4,
-        color: "#6e5494",
-    },
-    {
-        type: "commit",
-        repo: "typeintandem/tandem_vit",
-        count: 2,
-        color: "#f1e05a",
-    },
-    {
-        type: "commit",
-        repo: "typeintandem/tandem_plugins",
-        count: 7,
-        color: "#563d7c",
-    },
-    {
-        type: "commit",
-        repo: "typeintandem/tandem_intellij",
-        count: 3,
-        color: "#b07219",
-    },
+import { GitBranch, GitPullRequest, GitCommit, Lock } from "lucide-react";
+
+// Mock data matching the screenshot
+const mockCommits = [
+    { repo: "puruvats57/react-github-profile", count: 7, color: "#f1e05a" }, // JavaScript
+    { repo: "puruvats57/craftmyplate", count: 5, color: "#3178c6" }, // TypeScript
+    { repo: "puruvats57/insyd", count: 3, color: "#3178c6" }, // TypeScript
+    { repo: "puruvats57/nestjsTaskApp", count: 2, color: "#3178c6" }, // TypeScript
+    { repo: "puruvats57/profile-page1", count: 1, color: "#3178c6" }, // TypeScript
+];
+
+const mockCreatedRepos = [
+    { repo: "puruvats57/profile-page1", isPrivate: true, language: "TypeScript", color: "#3178c6", date: "Nov 26" },
+    { repo: "puruvats57/react-github-profile", isPrivate: false, language: "JavaScript", color: "#f1e05a", date: "Nov 25" },
+    { repo: "puruvats57/nestjsTaskApp", isPrivate: false, language: "TypeScript", color: "#3178c6", date: "Nov 21" },
+    { repo: "puruvats57/craftmyplate", isPrivate: false, language: "TypeScript", color: "#3178c6", date: "Nov 17" },
+    { repo: "puruvats57/insyd", isPrivate: false, language: "TypeScript", color: "#3178c6", date: "Nov 3" },
 ];
 export const ActivityFeed = () => {
     return (<section className="space-y-6">
@@ -63,40 +48,85 @@ export const ActivityFeed = () => {
       <div>
         <h2 className="text-base font-semibold mb-4">Contribution activity</h2>
 
-        <div className="space-y-4">
-          <div className="text-sm font-semibold pb-2 border-b border-border">
-            December 2024
-          </div>
+        <div className="space-y-6">
+          {/* November 2025 */}
+          <div>
+            <div className="text-sm font-semibold pb-2 border-b border-border mb-4">
+              November 2025
+            </div>
 
-          <div className="space-y-3">
-            <div>
-              <div className="flex items-start gap-3 mb-2">
-                <GitPullRequest className="w-4 h-4 mt-0.5 text-muted-foreground"/>
+            {/* Commits Section */}
+            <div className="mb-6">
+              <div className="flex items-start gap-3 mb-3">
+                <GitCommit className="w-4 h-4 mt-0.5 text-muted-foreground"/>
                 <div className="flex-1">
                   <div className="text-sm">
-                    <span>Opened </span>
-                    <span className="font-semibold">66 commit</span>
+                    <span>Created </span>
+                    <span className="font-semibold">18 commits</span>
                     <span> in </span>
-                    <span className="font-semibold">11 repositories</span>
+                    <span className="font-semibold">5 repositories</span>
                   </div>
                 </div>
               </div>
 
               <div className="ml-7 space-y-2">
-                {mockActivity.slice(1).map((activity, idx) => (<div key={idx} className="flex items-center gap-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: activity.color }}/>
+                {mockCommits.map((commit, idx) => (
+                  <div key={idx} className="flex items-center justify-between text-sm">
+                    <div className="flex items-center gap-2 flex-1">
+                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: commit.color }}/>
                       <a href="#" className="text-primary hover:underline">
-                        {activity.repo}
+                        {commit.repo}
                       </a>
                     </div>
-                    <span className="text-muted-foreground">{activity.count} commit</span>
-                  </div>))}
+                    <span className="text-muted-foreground">{commit.count} commits</span>
+                    <div className="w-24 h-2 bg-muted rounded ml-4">
+                      <div 
+                        className="h-full rounded" 
+                        style={{ 
+                          width: `${(commit.count / 7) * 100}%`, 
+                          backgroundColor: commit.color 
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Created Repositories Section */}
+            <div>
+              <div className="flex items-start gap-3 mb-3">
+                <GitBranch className="w-4 h-4 mt-0.5 text-muted-foreground"/>
+                <div className="flex-1">
+                  <div className="text-sm">
+                    <span>Created </span>
+                    <span className="font-semibold">5 repositories</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="ml-7 space-y-2">
+                {mockCreatedRepos.map((repo, idx) => (
+                  <div key={idx} className="flex items-center gap-2 text-sm">
+                    {repo.isPrivate && <Lock className="w-3 h-3 text-muted-foreground"/>}
+                    <a href="#" className="text-primary hover:underline">
+                      {repo.repo}
+                    </a>
+                    <span className="text-xs px-1.5 py-0.5 border border-border rounded text-muted-foreground">
+                      {repo.isPrivate ? "Private" : "Public"}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <div className="w-2 h-2 rounded-full" style={{ backgroundColor: repo.color }}/>
+                      <span className="text-xs text-muted-foreground">{repo.language}</span>
+                    </div>
+                    <span className="text-xs text-muted-foreground ml-auto">{repo.date}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
 
-          <div className="pt-4">
+          <div className="pt-2">
             <button className="text-sm text-primary hover:underline">Show more activity</button>
           </div>
         </div>

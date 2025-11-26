@@ -1,13 +1,26 @@
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-// Generate mock contribution data for the last year
-const generateMockContributions = () => {
+// Generate mock contribution data for a specific year
+const generateMockContributions = (year) => {
     const contributions = [];
+    const startDate = new Date(year, 0, 1);
+    const endDate = new Date(year, 11, 31);
     const today = new Date();
-    const oneYearAgo = new Date(today);
-    oneYearAgo.setFullYear(today.getFullYear() - 1);
-    for (let d = new Date(oneYearAgo); d <= today; d.setDate(d.getDate() + 1)) {
-        const count = Math.floor(Math.random() * 15);
+    const actualEndDate = endDate > today ? today : endDate;
+    
+    for (let d = new Date(startDate); d <= actualEndDate; d.setDate(d.getDate() + 1)) {
+        // Create more realistic patterns - more activity in certain months
+        const month = d.getMonth();
+        let count = 0;
+        
+        // Simulate activity patterns (more in Aug, Nov, Dec based on screenshot)
+        if (month === 6) count = Math.floor(Math.random() * 5); // July - light
+        else if (month === 7) count = Math.floor(Math.random() * 20); // August - heavy
+        else if (month === 9) count = Math.floor(Math.random() * 8); // October - light
+        else if (month === 10) count = Math.floor(Math.random() * 15); // November - medium
+        else if (month === 11) count = Math.floor(Math.random() * 12); // December - medium
+        else count = Math.floor(Math.random() * 3); // Other months - minimal
+        
         const level = count === 0 ? 0 : count < 3 ? 1 : count < 6 ? 2 : count < 10 ? 3 : 4;
         contributions.push({
             date: new Date(d).toISOString().split("T")[0],
@@ -22,19 +35,25 @@ const getLevelColor = (level) => {
     return colors[level] || colors[0];
 };
 export const ContributionGraph = ({ username }) => {
+    const currentYear = new Date().getFullYear();
+    const [selectedYear, setSelectedYear] = useState(currentYear);
     const [contributions, setContributions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [totalContributions, setTotalContributions] = useState(0);
+    
+    const years = Array.from({ length: 7 }, (_, i) => currentYear - i);
+    
     useEffect(() => {
         // In a real implementation, you would fetch from GitHub's GraphQL API
         // For now, we'll use mock data
+        setLoading(true);
         setTimeout(() => {
-            const mockData = generateMockContributions();
+            const mockData = generateMockContributions(selectedYear);
             setContributions(mockData);
             setTotalContributions(mockData.reduce((sum, day) => sum + day.count, 0));
             setLoading(false);
-        }, 500);
-    }, [username]);
+        }, 300);
+    }, [username, selectedYear]);
     if (loading) {
         return (<section>
         <div className="flex items-center justify-between mb-4">
@@ -67,14 +86,17 @@ export const ContributionGraph = ({ username }) => {
     return (<section>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-base font-normal">
-          {totalContributions} contributions in the last year
+          {totalContributions} contributions in {selectedYear}
         </h2>
-        <button className="text-sm text-muted-foreground hover:text-foreground">
-          Contribution settings
-        </button>
+        <div className="flex items-center gap-2">
+          <button className="text-sm text-muted-foreground hover:text-foreground">
+            Contribution settings
+          </button>
+        </div>
       </div>
 
-      <div className="border border-border rounded-lg p-4 bg-card overflow-x-auto">
+      <div className="flex gap-4">
+        <div className="flex-1 border border-border rounded-lg p-4 bg-card overflow-x-auto">
         <div className="min-w-[800px]">
           {/* Month labels */}
           <div className="flex mb-2 text-xs text-muted-foreground pl-12">
@@ -116,6 +138,24 @@ export const ContributionGraph = ({ username }) => {
             </div>
             <span>More</span>
           </div>
+        </div>
+        </div>
+        
+        {/* Year Selector */}
+        <div className="flex flex-col gap-1">
+          {years.map((year) => (
+            <button
+              key={year}
+              onClick={() => setSelectedYear(year)}
+              className={`px-3 py-1.5 text-sm rounded-md transition-colors ${
+                selectedYear === year
+                  ? "bg-blue-600 text-white font-medium"
+                  : "text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              {year}
+            </button>
+          ))}
         </div>
       </div>
     </section>);
