@@ -1,14 +1,17 @@
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import { TabsContent } from "@/components/ui/tabs";
 import { PopularRepos } from "./PopularRepos";
 import { ContributionGraph } from "./ContributionGraph";
 import { ActivityFeed } from "./ActivityFeed";
 export const ProfileTabs = ({ username }) => {
+    const currentYear = new Date().getFullYear();
+    const [selectedYear, setSelectedYear] = useState(currentYear);
+    
     return (<Fragment>
       <TabsContent value="overview" className="space-y-6 mt-0">
         <PopularRepos />
-        <ContributionGraph username={username}/>
-        <ActivityFeed username={username} />
+        <ContributionGraph username={username} selectedYear={selectedYear} setSelectedYear={setSelectedYear}/>
+        <ActivityFeed username={username} selectedYear={selectedYear} />
       </TabsContent>
 
       <TabsContent value="repositories" className="mt-0">

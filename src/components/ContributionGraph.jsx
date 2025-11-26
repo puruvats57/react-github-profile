@@ -14,9 +14,8 @@ const getLevelFromCount = (count) => {
     return 4;
 };
 
-export const ContributionGraph = ({ username }) => {
+export const ContributionGraph = ({ username, selectedYear, setSelectedYear }) => {
     const currentYear = new Date().getFullYear();
-    const [selectedYear, setSelectedYear] = useState(currentYear);
     const [contributions, setContributions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [totalContributions, setTotalContributions] = useState(0);
