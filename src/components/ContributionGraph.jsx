@@ -1,39 +1,19 @@
 import { useEffect, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-// Generate mock contribution data for a specific year
-const generateMockContributions = (year) => {
-    const contributions = [];
-    const startDate = new Date(year, 0, 1);
-    const endDate = new Date(year, 11, 31);
-    const today = new Date();
-    const actualEndDate = endDate > today ? today : endDate;
-    
-    for (let d = new Date(startDate); d <= actualEndDate; d.setDate(d.getDate() + 1)) {
-        // Create more realistic patterns - more activity in certain months
-        const month = d.getMonth();
-        let count = 0;
-        
-        // Simulate activity patterns (more in Aug, Nov, Dec based on screenshot)
-        if (month === 6) count = Math.floor(Math.random() * 5); // July - light
-        else if (month === 7) count = Math.floor(Math.random() * 20); // August - heavy
-        else if (month === 9) count = Math.floor(Math.random() * 8); // October - light
-        else if (month === 10) count = Math.floor(Math.random() * 15); // November - medium
-        else if (month === 11) count = Math.floor(Math.random() * 12); // December - medium
-        else count = Math.floor(Math.random() * 3); // Other months - minimal
-        
-        const level = count === 0 ? 0 : count < 3 ? 1 : count < 6 ? 2 : count < 10 ? 3 : 4;
-        contributions.push({
-            date: new Date(d).toISOString().split("T")[0],
-            count,
-            level: level,
-        });
-    }
-    return contributions;
-};
+
 const getLevelColor = (level) => {
     const colors = ["#ebedf0", "#9be9a8", "#40c463", "#30a14e", "#216e39"];
     return colors[level] || colors[0];
 };
+
+const getLevelFromCount = (count) => {
+    if (count === 0) return 0;
+    if (count < 3) return 1;
+    if (count < 6) return 2;
+    if (count < 10) return 3;
+    return 4;
+};
+
 export const ContributionGraph = ({ username }) => {
     const currentYear = new Date().getFullYear();
     const [selectedYear, setSelectedYear] = useState(currentYear);
@@ -44,15 +24,46 @@ export const ContributionGraph = ({ username }) => {
     const years = Array.from({ length: 7 }, (_, i) => currentYear - i);
     
     useEffect(() => {
-        // In a real implementation, you would fetch from GitHub's GraphQL API
-        // For now, we'll use mock data
         setLoading(true);
-        setTimeout(() => {
-            const mockData = generateMockContributions(selectedYear);
-            setContributions(mockData);
-            setTotalContributions(mockData.reduce((sum, day) => sum + day.count, 0));
-            setLoading(false);
-        }, 300);
+        // Fetch from GitHub Contributions API
+        fetch(`https://github-contributions-api.jogruber.de/v4/${username}?y=${selectedYear}`)
+            .then((res) => {
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.json();
+            })
+            .then((data) => {
+                // API returns: { total: {...}, contributions: [...] }
+                // Each contribution has: { date: "YYYY-MM-DD", count: number }
+                if (data && data.contributions && Array.isArray(data.contributions)) {
+                    // Filter contributions for the selected year and sort by date
+                    const yearContributions = data.contributions
+                        .filter((day) => {
+                            const dayYear = new Date(day.date).getFullYear();
+                            return dayYear === selectedYear;
+                        })
+                        .map((day) => ({
+                            date: day.date,
+                            count: day.count || 0,
+                            level: getLevelFromCount(day.count || 0),
+                        }))
+                        .sort((a, b) => new Date(a.date) - new Date(b.date));
+                    
+                    setContributions(yearContributions);
+                    setTotalContributions(yearContributions.reduce((sum, day) => sum + day.count, 0));
+                } else {
+                    setContributions([]);
+                    setTotalContributions(0);
+                }
+                setLoading(false);
+            })
+            .catch((err) => {
+                console.error("Error fetching contributions:", err);
+                setContributions([]);
+                setTotalContributions(0);
+                setLoading(false);
+            });
     }, [username, selectedYear]);
     if (loading) {
         return (<section>
@@ -64,23 +75,31 @@ export const ContributionGraph = ({ username }) => {
     }
     // Group contributions by week
     const weeks = [];
-    let currentWeek = [];
-    const startDayOfWeek = new Date(contributions[0].date).getDay();
-    for (let i = 0; i < startDayOfWeek; i++) {
-        currentWeek.push({ date: "", count: 0, level: 0 });
-    }
-    contributions.forEach((day, index) => {
-        currentWeek.push(day);
-        if (currentWeek.length === 7) {
-            weeks.push(currentWeek);
-            currentWeek = [];
-        }
-    });
-    if (currentWeek.length > 0) {
-        while (currentWeek.length < 7) {
+    if (contributions.length > 0) {
+        let currentWeek = [];
+        const startDate = new Date(contributions[0].date);
+        const startDayOfWeek = startDate.getDay();
+        
+        // Add empty days at the start of the first week
+        for (let i = 0; i < startDayOfWeek; i++) {
             currentWeek.push({ date: "", count: 0, level: 0 });
         }
-        weeks.push(currentWeek);
+        
+        contributions.forEach((day) => {
+            currentWeek.push(day);
+            if (currentWeek.length === 7) {
+                weeks.push(currentWeek);
+                currentWeek = [];
+            }
+        });
+        
+        // Fill remaining days in the last week
+        if (currentWeek.length > 0) {
+            while (currentWeek.length < 7) {
+                currentWeek.push({ date: "", count: 0, level: 0 });
+            }
+            weeks.push(currentWeek);
+        }
     }
     const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
     return (<section>
