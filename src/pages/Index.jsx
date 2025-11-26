@@ -40,13 +40,13 @@ const Index = () => {
 
             <div className="flex items-center gap-3 flex-1 justify-end">
               {/* Search Bar */}
-              <div className="max-w-xl w-full">
+              <div className="w-64">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground"/>
                   <Input 
                     type="search" 
                     placeholder="Type / to search" 
-                    className="pl-10 pr-12 bg-muted/50 border-border rounded-md h-8 text-sm focus-visible:ring-1 focus-visible:ring-ring"
+                    className="pl-10 pr-12 bg-muted/50 border-border rounded-md h-8 text-sm focus-visible:ring-1 focus-visible:ring-ring w-full"
                   />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                     <span className="text-xs bg-background border border-border rounded px-1.5 py-0.5 text-muted-foreground font-mono">/</span>
@@ -54,8 +54,8 @@ const Index = () => {
                 </div>
               </div>
 
-              {/* Icons */}
-              <nav className="flex items-center gap-1">
+              {/* Icons - Hidden on smaller screens */}
+              <nav className="hidden lg:flex items-center gap-1">
                 <Button variant="ghost" size="sm" className="h-8 px-2 hover:bg-muted rounded-md">
                   <Users className="w-4 h-4"/>
                   <ChevronDown className="w-3 h-3 ml-0.5"/>
